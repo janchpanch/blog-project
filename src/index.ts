@@ -3,6 +3,7 @@ import {
     handlerLogin,
     handlerRegister,
     handlerReset,
+    handlerRSS,
     handlerSandbox,
     handlerUsers,
     registerCommand,
@@ -16,6 +17,7 @@ async function main() {
     registerCommand(reg, "register", handlerRegister);
     registerCommand(reg, "reset", handlerReset);
     registerCommand(reg, "users", handlerUsers);
+    registerCommand(reg, "agg", handlerRSS)
 
     registerCommand(reg, "sandbox", handlerSandbox)
 

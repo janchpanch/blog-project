@@ -68,7 +68,7 @@ export async function fetchFeed(feedURL: string) {
     let rawItems: unknown[];
     let validItems: RSSItem[] = [];
 
-    console.log(typeof rawItem);
+    // console.log(typeof rawItem);
 
 
     if (Array.isArray(rawItem)) {

@@ -91,6 +91,20 @@ export async function handlerUsers(
     }
 }
 
+export async function handlerRSS(
+    cmdName: string,
+    ...args: string[]
+): Promise<void> {
+    let result: any;
+    try {
+        result = await fetchFeed("https://www.wagslane.dev/index.xml");
+    } catch {
+        throw new Error("RSS feed request failed")
+    }
+    // console.log(JSON.stringify(result))
+    console.dir(result, { depth: null })
+}
+
 export async function handlerSandbox(
     cmdName: string,
     ...args: string[]
