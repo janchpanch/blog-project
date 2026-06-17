@@ -1,6 +1,6 @@
 import { readConfig, setUser } from "./config";
-import { createFeed, resetFeedsTable } from "./lib/db/queries/feeds";
-import { createUser, getUser, getUsers, resetUserTable } from "./lib/db/queries/users";
+import { createFeed, getFeeds, resetFeedsTable } from "./lib/db/queries/feeds";
+import { createUser, getUser, getUserByUUID, getUsers, resetUserTable } from "./lib/db/queries/users";
 import { fetchFeed } from "./lib/rss/rss";
 
 export type CommandHandler = (
@@ -110,7 +110,7 @@ export async function handlerAddFeed(
 
     }
 
-    // Take the name, url, and requested user UUID from a getUser() query call -> nested await ftw
+    // Take the name, url, and requested user UUID from a getUser() query call
     const user = (await getUser(readConfig().currentUserName))
 
     try {
@@ -118,6 +118,24 @@ export async function handlerAddFeed(
         console.log("feed added successfully")
     } catch (err) {
         throw new Error(`failed to create feed "${args[0]}"`, { cause: err })
+    }
+}
+
+export async function handlerFeeds(
+    cmdName: string,
+    ...args: string[]
+): Promise<void> {
+
+
+    try {
+        const feeds = await getFeeds();
+
+        for (let i of feeds) {
+            const username = (await getUserByUUID(i.userID)).name
+            console.log(`name: ${i.name}\nurl: ${i.url}\nusername: ${username}\n`)
+        }
+    } catch (err) {
+        console.log(`feeds call to db failed: ${err}`);
     }
 }
 

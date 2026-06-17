@@ -6,6 +6,15 @@ export async function createFeed(name: string, url: string, userID: string) {
     return result;
 }
 
+export async function getFeeds() {
+    const [...result] = await db.select({
+        name: feeds.name,
+        url: feeds.url,
+        userID: feeds.userID,
+    }).from(feeds);
+    return result;
+}
+
 export async function resetFeedsTable() {
     const [result] = await db.delete(feeds);
     return result;

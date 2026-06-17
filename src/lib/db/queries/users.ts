@@ -12,6 +12,11 @@ export async function getUser(name: string) {
     return result;
 }
 
+export async function getUserByUUID(uuid: string) {
+    const [result] = await db.select().from(users).where(eq(users.id, uuid));
+    return result;
+}
+
 export async function getUsers() {
     // ...result -> needed to query more than the first entry in the table
     const [...result] = await db.query.users.findMany();
@@ -22,5 +27,3 @@ export async function resetUserTable() {
     const [result] = await db.delete(users);
     return result;
 }
-
-

@@ -3,7 +3,7 @@
     "baseUrl": ".",
     "target": "esnext",
     "module": "esnext",
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
     "strict": true,
     "moduleResolution": "Node",
