@@ -15,6 +15,20 @@
       "when": 1781647172253,
       "tag": "0001_fine_bug",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781729807201,
+      "tag": "0002_spotty_famine",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781732051724,
+      "tag": "0003_wild_nightmare",
+      "breakpoints": true
     }
   ]
 }

@@ -112,7 +112,6 @@ export async function handlerAddFeed(
 
     // Take the name, url, and requested user UUID from a getUser() query call
     const user = (await getUser(readConfig().currentUserName))
-
     try {
         await createFeed(args[0], args[1], user.id);
         console.log("feed added successfully")
@@ -125,7 +124,6 @@ export async function handlerFeeds(
     cmdName: string,
     ...args: string[]
 ): Promise<void> {
-
 
     try {
         const feeds = await getFeeds();
@@ -143,6 +141,7 @@ export async function handlerSandbox(
     cmdName: string,
     ...args: string[]
 ): Promise<void> {
+
     await fetchFeed("https://www.wagslane.dev/index.xml");
 }
 
@@ -165,6 +164,6 @@ export async function runCommand(
         throw new Error("Command not registered");
     }
 
-    // Await here is crucial - errors fail to throw otherwise
+    // await here is crucial - errors fail to throw otherwise
     await fn(cmdName, ...args);
 }
