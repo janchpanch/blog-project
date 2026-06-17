@@ -3,13 +3,13 @@ import { db } from "..";
 import { users } from "../schema";
 
 export async function createUser(name: string) {
-  const [result] = await db.insert(users).values({ name: name }).returning();
-  return result.name;
+    const [result] = await db.insert(users).values({ name: name }).returning();
+    return result.name;
 }
 
 export async function getUser(name: string) {
-  const [result] = await db.select().from(users).where(eq(users.name, name));
-  return result.name;
+    const [result] = await db.select().from(users).where(eq(users.name, name));
+    return result;
 }
 
 export async function getUsers() {
@@ -19,6 +19,8 @@ export async function getUsers() {
 }
 
 export async function resetUserTable() {
-  const [result] = await db.delete(users);
-  return result;
+    const [result] = await db.delete(users);
+    return result;
 }
+
+

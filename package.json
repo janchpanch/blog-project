@@ -4,6 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "db-login": "sudo -u postgres psql",
     "start": "tsx ./src/index.ts"
   },
   "keywords": [],

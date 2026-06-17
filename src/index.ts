@@ -1,5 +1,6 @@
 import {
     CommandsRegistry,
+    handlerAddFeed,
     handlerLogin,
     handlerRegister,
     handlerReset,
@@ -18,6 +19,7 @@ async function main() {
     registerCommand(reg, "reset", handlerReset);
     registerCommand(reg, "users", handlerUsers);
     registerCommand(reg, "agg", handlerRSS)
+    registerCommand(reg, "addfeed", handlerAddFeed)
 
     registerCommand(reg, "sandbox", handlerSandbox)
 

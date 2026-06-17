@@ -2,6 +2,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 
+// Acts as local **identifier**, not the whole user record from the database
 export type Config = {
     dbUrl: string;
     currentUserName: string;
