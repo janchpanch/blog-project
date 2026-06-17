@@ -88,12 +88,12 @@ export async function handlerRSS(
     cmdName: string,
     ...args: string[]
 ): Promise<void> {
-    let result = await fetchFeed("https://www.wagslane.dev/index.xml");
 
-    if (!result) {
-        throw new Error("feed request failed");
-    } else {
-        console.dir(result, { depth: null })
+    try {
+        const result = await fetchFeed("https://www.wagslane.dev/index.xml");
+        console.dir(result, { depth: null });
+    } catch (err) {
+        throw new Error("failed to fetch feed", { cause: err })
     }
 }
 
@@ -109,12 +109,16 @@ export async function handlerAddFeed(
             throw new Error("feed url required")
 
     }
-    
+
     // Take the name, url, and requested user UUID from a getUser() query call -> nested await ftw
-    await createFeed(args[0], args[1], (await getUser(readConfig().currentUserName)).id);;
-    
-    // Error thrown within createFeed(), will stop log if failed
-    console.log("feed added successfully")    
+    const user = (await getUser(readConfig().currentUserName))
+
+    try {
+        await createFeed(args[0], args[1], user.id);
+        console.log("feed added successfully")
+    } catch (err) {
+        throw new Error(`failed to create feed "${args[0]}"`, { cause: err })
+    }
 }
 
 export async function handlerSandbox(
