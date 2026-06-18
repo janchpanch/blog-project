@@ -12,7 +12,7 @@ import {
     handlerUserList,
     registerCommand,
     runCommand,
-    handlerFeedFollowsList,
+    handlerFeedFollowsTable,
     handlerUserFFList,
 } from "./commands";
 
@@ -31,15 +31,16 @@ async function main() {
     registerCommand(reg, "addfeed", middlewareLoggedIn(handlerAddFeed));
     registerCommand(reg, "follow", middlewareLoggedIn(handlerFollow));
     registerCommand(reg, "following", middlewareLoggedIn(handlerUserFFList));
-
+    
     /**  
      * auth-agnostic functions
      */
-    registerCommand(reg, "agg", handlerFetchRSS);
-    registerCommand(reg, "feeds", handlerGetFeeds);
-    registerCommand(reg, "feedfollows", handlerFeedFollowsList);
+    registerCommand(reg, "reset", handlerResetTables);
     registerCommand(reg, "users", handlerUserList);
     registerCommand(reg, "reset", handlerResetTables);
+    registerCommand(reg, "feeds", handlerGetFeeds);
+    registerCommand(reg, "feedfollows", handlerFeedFollowsTable);
+    registerCommand(reg, "agg", handlerFetchRSS);
 
     /**
      * test function(s)

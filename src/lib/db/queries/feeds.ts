@@ -53,11 +53,13 @@ export async function getFeedFollowsTable(): Promise<FeedFollow[]> {
     return result;
 }
 
-export async function getFeedFollowsForUser(name: string) {
-    const user = await getUser(name);
-    // console.log(`gfffu: ${Object.values(user)}`)
-    const [...result] = await db.select().from(feedFollows).where(eq(feedFollows.userID, user.id));
+export async function getFeedFollowsByUUID(user_id: string) {
+    const [...result] = await db.select().from(feedFollows).where(eq(feedFollows.userID, user_id));
     return result
+}
+
+export async function unfollowFeed() {
+
 }
 
 export async function resetFeedsTable() {

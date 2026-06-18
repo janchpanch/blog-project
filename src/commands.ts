@@ -4,8 +4,8 @@ import {
     createFeedFollow,
     getFeedByURL,
     getFeedByUUID,
-    getFeedFollowsTable as getFeedFollowsTable,
-    getFeedFollowsForUser as getFeedFollowsForCurrentUser,
+    getFeedFollowsTable,
+    getFeedFollowsByUUID,
     getFeedsEntries,
     resetFeedsFollowsTable,
     resetFeedsTable,
@@ -27,6 +27,9 @@ export type CommandHandler = (
 
 export type CommandsRegistry = Record<string, CommandHandler>;
 
+/**
+ * functions for command usage
+ */
 
 export async function registerCommand(
     registry: CommandsRegistry,
@@ -51,6 +54,9 @@ export async function runCommand(
     await fn(cmdName, ...args);
 }
 
+/**
+ * auth functions 
+ */
 export async function handlerLogin(
     cmdName: string,
     ...args: string[]
@@ -86,43 +92,18 @@ export async function handlerRegister(
     }
 }
 
-export async function handlerResetTables(
-    cmdName: string,
-    ...args: string[]
-): Promise<void> {
-    try {
-        await resetUserTable();
-        console.log("User table reset successful");
-    } catch (err) {
-        throw new Error(`User table reset fail: ${err}`);
-    }
-
-    try {
-        await resetFeedsTable();
-        console.log("Feed table reset successful");
-    } catch (err) {
-        throw new Error(`Feed table reset fail: ${err}`);
-    }
-
-    try {
-        await resetFeedsFollowsTable();
-        console.log("feed_follows table reset successfully");
-    } catch (err) {
-        throw new Error(`feed_follows table reset fail: ${err}`);
-    }
-}
-
 /*
  * "logged in" functions
  */
 
+// middleware user command handler
 export type UserCommandHandler = (
     cmdName: string,
     user: User,
     ...args: string[]
 ) => Promise<void>;
 
-
+// abstracted user check to database
 export function middlewareLoggedIn(handler: UserCommandHandler): CommandHandler {
     return async (cmdName, ...args) => {
         const user = await getUser(readConfig().currentUserName);
@@ -183,10 +164,10 @@ export async function handlerUserFFList(
     ...args: string[]
 ): Promise<void> {
     try {
-        const [...result] = await getFeedFollowsForCurrentUser(
-            user.name,
+        const [...result] = await getFeedFollowsByUUID(
+            user.id,
         );
-        console.log("You are following:");
+        console.log(`You {${user.name}} are following:`);
         for (let i of result) {
             const feed = await getFeedByUUID(i.feedID);
             console.log(`  ${feed.name}`);
@@ -196,18 +177,40 @@ export async function handlerUserFFList(
     }
 }
 
-export async function handlerFeedFollowsList(
+
+
+/**
+ * login agnostic functions
+ */
+
+// command "reset"
+export async function handlerResetTables(
     cmdName: string,
     ...args: string[]
 ): Promise<void> {
     try {
-        const [...result] = await getFeedFollowsTable();
-        console.log(result);
+        await resetUserTable();
+        console.log("User table reset successful");
     } catch (err) {
-        throw new Error(`get feed follows data failed: ${err}`);
+        throw new Error(`User table reset fail: ${err}`);
+    }
+
+    try {
+        await resetFeedsTable();
+        console.log("Feed table reset successful");
+    } catch (err) {
+        throw new Error(`Feed table reset fail: ${err}`);
+    }
+
+    try {
+        await resetFeedsFollowsTable();
+        console.log("feed_follows table reset successfully");
+    } catch (err) {
+        throw new Error(`feed_follows table reset fail: ${err}`);
     }
 }
 
+// command "users"
 export async function handlerUserList(
     cmdName: string,
     ...args: string[]
@@ -227,6 +230,38 @@ export async function handlerUserList(
     }
 }
 
+// command "feeds"
+export async function handlerGetFeeds(
+    cmdName: string,
+    ...args: string[]
+): Promise<void> {
+    try {
+        // fetch all feeds
+        const feeds = await getFeedsEntries();
+        for (let i of feeds) {
+            // fetch the username from the stored user_id in each feed entry
+            const user = await getUserByUUID(i.userID)
+            console.log(`name: ${i.name}\nurl: ${i.url}\nusername: ${user.name}\n`);
+        }
+    } catch (err) {
+        console.log(`feeds call to db failed: ${err}`);
+    }
+}
+
+// command "feedfollows"
+export async function handlerFeedFollowsTable(
+    cmdName: string,
+    ...args: string[]
+): Promise<void> {
+    try {
+        const [...result] = await getFeedFollowsTable();
+        console.log(result);
+    } catch (err) {
+        throw new Error(`get feed follows data failed: ${err}`);
+    }
+}
+
+// command "agg"
 export async function handlerFetchRSS(
     cmdName: string,
     ...args: string[]
@@ -239,22 +274,7 @@ export async function handlerFetchRSS(
     }
 }
 
-export async function handlerGetFeeds(
-    cmdName: string,
-    ...args: string[]
-): Promise<void> {
-    try {
-        const feeds = await getFeedsEntries();
-
-        for (let i of feeds) {
-            const username = (await getUserByUUID(i.userID)).name;
-            console.log(`name: ${i.name}\nurl: ${i.url}\nusername: ${username}\n`);
-        }
-    } catch (err) {
-        console.log(`feeds call to db failed: ${err}`);
-    }
-}
-
+// command "sandbox"
 export async function handlerSandbox(
     cmdName: string,
     ...args: string[]
