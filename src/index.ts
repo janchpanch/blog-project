@@ -14,6 +14,7 @@ import {
     runCommand,
     handlerFeedFollowsTable,
     handlerUserFFList,
+    handlerUnfollow,
 } from "./commands";
 
 async function main() {
@@ -30,6 +31,7 @@ async function main() {
      */
     registerCommand(reg, "addfeed", middlewareLoggedIn(handlerAddFeed));
     registerCommand(reg, "follow", middlewareLoggedIn(handlerFollow));
+    registerCommand(reg, "unfollow", middlewareLoggedIn(handlerUnfollow));
     registerCommand(reg, "following", middlewareLoggedIn(handlerUserFFList));
     
     /**  

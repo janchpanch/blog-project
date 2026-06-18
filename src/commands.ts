@@ -9,6 +9,7 @@ import {
     getFeedsEntries,
     resetFeedsFollowsTable,
     resetFeedsTable,
+    deleteFeedFollow,
 } from "./lib/db/queries/feeds";
 import {
     createUser,
@@ -153,7 +154,24 @@ export async function handlerFollow(
         const feedFollow = await createFeedFollow(user.id, feed.id);
         console.log(feedFollow);
     } catch (err) {
-        throw new Error(`oopsie woopsie: ${err}`);
+        throw new Error(`user <${user.name}> cannot follow <${args[0]}>: ${err}`);
+    }
+}
+
+// command "unfollow"
+export async function handlerUnfollow(
+    cmdName: string,
+    user: User,
+    ...args: string[]
+): Promise<void> {
+    if (!args.length) {
+        throw new Error("a url is required")
+    }
+
+    try {
+        await deleteFeedFollow(user, args[0])
+    } catch (err) {
+        throw new Error(`you <${user.name}> cannot unfollow <${args[0]}: ${err}>`);
     }
 }
 
@@ -168,6 +186,9 @@ export async function handlerUserFFList(
             user.id,
         );
         console.log(`You {${user.name}} are following:`);
+        if (!result.length) {
+            console.log("  no feed(s) followed")
+        }
         for (let i of result) {
             const feed = await getFeedByUUID(i.feedID);
             console.log(`  ${feed.name}`);
@@ -176,8 +197,6 @@ export async function handlerUserFFList(
         throw new Error(`query for current user's feedfollows failed: ${err}`);
     }
 }
-
-
 
 /**
  * login agnostic functions
