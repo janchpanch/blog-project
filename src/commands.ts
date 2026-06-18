@@ -1,12 +1,21 @@
 import { readConfig, setUser } from "./config";
 import { createFeed, createFeedFollow, getFeedByURL, getFeedByUUID, getFeedFollowsTable as getFeedFollowsTable, getFeedFollowsForUser, getFeedsEntries, resetFeedsFollowsTable, resetFeedsTable } from "./lib/db/queries/feeds";
 import { createUser, getUser, getUserByUUID, getUsers, resetUserTable } from "./lib/db/queries/users";
+import { User } from "./lib/db/schema";
 import { fetchFeed } from "./lib/rss/rss";
 
 export type CommandHandler = (
     cmdName: string,
     ...args: string[]
 ) => Promise<void>;
+
+export type UserCommandHandler = (
+    cmdName: string,
+    user: User,
+    ...args: string[]
+) => Promise<void>;
+
+type middlewareLoggedIn = (handler: UserCommandHandler) => CommandHandler;
 
 export type CommandsRegistry = Record<string, CommandHandler>;
 
