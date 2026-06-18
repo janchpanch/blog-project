@@ -1,15 +1,18 @@
 import {
     CommandsRegistry,
     handlerAddFeed,
-    handlerFeeds,
+    handlerGetFeeds,
+    handlerFollow,
     handlerLogin,
     handlerRegister,
-    handlerReset,
+    handlerResetTables,
     handlerRSS,
     handlerSandbox,
-    handlerUsers,
+    handlerUserList,
     registerCommand,
     runCommand,
+    handlerGetFeedFollows,
+    handlerGetUserFF,
 } from "./commands";
 
 async function main() {
@@ -17,11 +20,14 @@ async function main() {
 
     registerCommand(reg, "login", handlerLogin);
     registerCommand(reg, "register", handlerRegister);
-    registerCommand(reg, "reset", handlerReset);
-    registerCommand(reg, "users", handlerUsers);
+    registerCommand(reg, "reset", handlerResetTables);
+    registerCommand(reg, "users", handlerUserList);
     registerCommand(reg, "agg", handlerRSS);
     registerCommand(reg, "addfeed", handlerAddFeed);
-    registerCommand(reg, "feeds", handlerFeeds);
+    registerCommand(reg, "feeds", handlerGetFeeds);
+    registerCommand(reg, "follow", handlerFollow);
+    registerCommand(reg, "feedfollows", handlerGetFeedFollows);
+    registerCommand(reg, "following", handlerGetUserFF);
 
     registerCommand(reg, "sandbox", handlerSandbox);
 

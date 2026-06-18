@@ -1,5 +1,5 @@
 import { readConfig, setUser } from "./config";
-import { createFeed, getFeeds, resetFeedsTable } from "./lib/db/queries/feeds";
+import { createFeed, createFeedFollow, getFeedByURL, getFeedByUUID, getFeedFollowsTable as getFeedFollowsTable, getFeedFollowsForUser, getFeedsEntries, resetFeedsFollowsTable, resetFeedsTable } from "./lib/db/queries/feeds";
 import { createUser, getUser, getUserByUUID, getUsers, resetUserTable } from "./lib/db/queries/users";
 import { fetchFeed } from "./lib/rss/rss";
 
@@ -37,34 +37,40 @@ export async function handlerRegister(
     try {
         await createUser(args[0]);
         setUser(args[0]);
-        console.log(`User ${args[0]} been registered and is now the active user`);
+        console.log(`User ${args[0]} has been registered and is now the active user`);
     } catch {
         throw new Error(`User ${args[0]} is already registered`);
     }
 }
 
-export async function handlerReset(
+export async function handlerResetTables(
     cmdName: string,
     ...args: string[]
 ): Promise<void> {
-    let result: any;
 
     try {
-        result = await resetUserTable();
+        await resetUserTable();
         console.log("User table reset successful");
-    } catch {
-        throw new Error("User table reset fail");
+    } catch (err) {
+        throw new Error(`User table reset fail: ${err}`);
     }
 
     try {
-        result = await resetFeedsTable();
+        await resetFeedsTable();
         console.log("Feed table reset successful");
-    } catch {
-        throw new Error("Feed table reset fail");
+    } catch (err) {
+        throw new Error(`Feed table reset fail: ${err}`);
+    }
+
+    try {
+        await resetFeedsFollowsTable();
+        console.log("feed_follows table reset successfully");
+    } catch (err) {
+        throw new Error(`feed_follows table reset fail: ${err}`);
     }
 }
 
-export async function handlerUsers(
+export async function handlerUserList(
     cmdName: string,
     ...args: string[]
 ): Promise<void> {
@@ -107,26 +113,26 @@ export async function handlerAddFeed(
             throw new Error("feed name and url required")
         case 1:
             throw new Error("feed url required")
-
     }
 
     // Take the name, url, and requested user UUID from a getUser() query call
     const user = (await getUser(readConfig().currentUserName))
     try {
-        await createFeed(args[0], args[1], user.id);
-        console.log("feed added successfully")
+        const newFeed = await createFeed(args[0], args[1], user.id);
+        await createFeedFollow(user.id, newFeed.id)
+        console.log(`feed: ${newFeed.name}, user: ${user.name} added successfully`)
     } catch (err) {
-        throw new Error(`failed to create feed "${args[0]}"`, { cause: err })
+        throw new Error(`failed to create feed "${args[0]}": "${args[1]}"`, { cause: err })
     }
 }
 
-export async function handlerFeeds(
+export async function handlerGetFeeds(
     cmdName: string,
     ...args: string[]
 ): Promise<void> {
 
     try {
-        const feeds = await getFeeds();
+        const feeds = await getFeedsEntries();
 
         for (let i of feeds) {
             const username = (await getUserByUUID(i.userID)).name
@@ -137,6 +143,50 @@ export async function handlerFeeds(
     }
 }
 
+export async function handlerFollow(
+    cmdName: string,
+    ...args: string[]
+): Promise<void> {
+    if (!args.length) {
+        throw new Error("input url required")
+    }
+    try {
+        const user = await getUser(readConfig().currentUserName);
+        const feed = await getFeedByURL(args[0]);
+        const feedFollow = await createFeedFollow(user.id, feed.id);
+        console.log(feedFollow);
+    } catch (err) {
+        throw new Error(`oopsie woopsie: ${err}`)
+    }
+}
+
+export async function handlerGetFeedFollows(
+    cmdName: string,
+    ...args: string[]
+): Promise<void> {
+    try {
+        const [...result] = await getFeedFollowsTable();
+        console.log(result);
+    } catch (err) {
+        throw new Error(`get feed follows failed: ${err}`);
+    }
+}
+
+export async function handlerGetUserFF(
+    cmdName: string,
+    ...args: string[]
+): Promise<void> {
+    try {
+        const [...result] = await getFeedFollowsForUser(readConfig().currentUserName);
+        console.log("You are following:")
+        for (let i of result) {
+            const feed = await getFeedByUUID(i.feedID);
+            console.log(`  ${feed.name}`)
+        }
+    } catch (err) {
+        throw new Error(`query for current user feedfollows failed: ${err}`);
+    }
+}
 export async function handlerSandbox(
     cmdName: string,
     ...args: string[]

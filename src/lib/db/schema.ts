@@ -22,7 +22,7 @@ export const feeds = pgTable("feeds", {
     userID: uuid("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
 });
 
-export const feed_follows = pgTable("feed_follows", {
+export const feedFollows = pgTable("feed_follows", {
     id: uuid("id").primaryKey().defaultRandom().notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
@@ -38,6 +38,7 @@ export const feed_follows = pgTable("feed_follows", {
 
 export type Feed = typeof feeds.$inferSelect;
 export type User = typeof users.$inferSelect;
+export type FeedFollow = typeof feedFollows.$inferInsert;
 
 export async function printFeed(feed: Feed, user: User) {
     console.log(feed)
