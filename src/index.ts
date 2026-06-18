@@ -1,43 +1,54 @@
 import {
     CommandsRegistry,
+    middlewareLoggedIn,
     handlerAddFeed,
     handlerGetFeeds,
     handlerFollow,
     handlerLogin,
     handlerRegister,
     handlerResetTables,
-    handlerRSS,
+    handlerFetchRSS,
     handlerSandbox,
     handlerUserList,
     registerCommand,
     runCommand,
-    handlerGetFeedFollows,
-    handlerGetUserFF,
+    handlerFeedFollowsList,
+    handlerUserFFList,
 } from "./commands";
 
 async function main() {
     let reg: CommandsRegistry = {};
 
+    /**
+     * auth functions
+     */
     registerCommand(reg, "login", handlerLogin);
     registerCommand(reg, "register", handlerRegister);
-    registerCommand(reg, "reset", handlerResetTables);
-    registerCommand(reg, "users", handlerUserList);
-    registerCommand(reg, "agg", handlerRSS);
-    registerCommand(reg, "addfeed", handlerAddFeed);
-    registerCommand(reg, "feeds", handlerGetFeeds);
-    registerCommand(reg, "follow", handlerFollow);
-    registerCommand(reg, "feedfollows", handlerGetFeedFollows);
-    registerCommand(reg, "following", handlerGetUserFF);
 
+    /**
+     * "logged-in" functions
+     */
+    registerCommand(reg, "addfeed", middlewareLoggedIn(handlerAddFeed));
+    registerCommand(reg, "follow", middlewareLoggedIn(handlerFollow));
+    registerCommand(reg, "following", middlewareLoggedIn(handlerUserFFList));
+
+    /**  
+     * auth-agnostic functions
+     */
+    registerCommand(reg, "agg", handlerFetchRSS);
+    registerCommand(reg, "feeds", handlerGetFeeds);
+    registerCommand(reg, "feedfollows", handlerFeedFollowsList);
+    registerCommand(reg, "users", handlerUserList);
+    registerCommand(reg, "reset", handlerResetTables);
+
+    /**
+     * test function(s)
+     */
     registerCommand(reg, "sandbox", handlerSandbox);
 
     let input = process.argv;
     let cmd = input[2];
     let args = input.slice(3);
-
-    // console.log(input);
-    // console.log(cmd);
-    // console.log(args);
 
     if (!cmd || cmd.length === 0) {
         throw new Error("not enough arguments were provided");
