@@ -1,7 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
-import { isRecord } from "../util/validation";
+import { isRecord } from "../util/helper";
 
-type RSSFeed = {
+export type RSSFeed = {
     channel: {
         title: string;
         link: string;
@@ -10,7 +10,7 @@ type RSSFeed = {
     };
 };
 
-type RSSItem = {
+export type RSSItem = {
     title: string;
     link: string;
     description: string;
@@ -18,7 +18,7 @@ type RSSItem = {
 };
 
 export async function fetchFeed(feedURL: string) {
-    // Assign the response obj as *response*, not any
+    // Assign the response obj as *response*, not 'any'
     let response: Response;
     try {
         response = await fetch(feedURL, {
@@ -107,7 +107,6 @@ export async function fetchFeed(feedURL: string) {
             description,
             pubDate,
         });
-
     }
 
     let feed: RSSFeed = {

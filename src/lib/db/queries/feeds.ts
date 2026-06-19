@@ -1,7 +1,6 @@
-import { eq, and } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "..";
-import { FeedFollow, feedFollows, feeds, User, users } from "../schema";
-import { getUser } from "./users";
+import { Feed, feeds } from "../schema";
 
 export async function createFeed(name: string, url: string, userID: string) {
     const [result] = await db.insert(feeds).values({ name: name, url: url, userID: userID }).returning();
@@ -18,7 +17,7 @@ export async function getFeedByUUID(id: string) {
     return result;
 }
 
-export async function getFeedsEntries() {
+export async function getFeeds() {
     const [...result] = await db.select({
         name: feeds.name,
         url: feeds.url,
@@ -27,55 +26,18 @@ export async function getFeedsEntries() {
     return result;
 }
 
-export async function createFeedFollow(userID: string, feedID: string) {
-    const [ff] = await db.insert(feedFollows).values({ userID: userID, feedID: feedID }).returning();
-
-    const [...result] = await db.select({
-        id: feedFollows.id,
-        createdAt: feedFollows.createdAt,
-        updatedAt: feedFollows.updatedAt,
-        username: users.name,
-        feedName: feeds.name
-    })
-        .from(feedFollows)
-        .where(and(
-            eq(users.id, ff.userID),
-            eq(feeds.id, ff.feedID)))
-        .innerJoin(users, eq(feedFollows.userID, ff.userID))
-        .innerJoin(feeds, eq(feedFollows.feedID, ff.feedID));
-
-
+export async function markFeedFetched(feed: Feed) {
+    const [...result] = await db.update(feeds).set({ updatedAt: sql`NOW()`, lastFetchedAt: sql`NOW()` }).where(eq(feeds.id, feed.id)).returning();
     return result;
 }
 
-export async function getFeedFollowsTable(): Promise<FeedFollow[]> {
-    const [...result] = await db.select().from(feedFollows);
-    return result;
-}
-
-export async function getFeedFollowsByUUID(user_id: string) {
-    const [...result] = await db.select().from(feedFollows).where(eq(feedFollows.userID, user_id));
-    return result
-}
-
-export async function deleteFeedFollow(user: User, url: string) {
-    const feed = await getFeedByURL(url);
-    const [...result] = await db.delete(feedFollows).where(
-        and(
-            eq(feedFollows.userID, user.id),
-            eq(feedFollows.feedID, feed.id)
-        )
-    );
+export async function getNextFeedToFetch() {
+    const [result] = await db.select().from(feeds).orderBy(sql`${feeds.lastFetchedAt} ASC NULLS FIRST`);
     return result;
 }
 
 export async function resetFeedsTable() {
     const [result] = await db.delete(feeds);
-    return result;
-}
-
-export async function resetFeedsFollowsTable() {
-    const [result] = await db.delete(feedFollows);
     return result;
 }
 
