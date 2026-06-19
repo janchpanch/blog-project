@@ -1,4 +1,4 @@
-import { createFeedFollow, deleteFeedFollow, getFeedFollowsByUUID } from "src/lib/db/queries/feed-follows";
+import { createFeedFollow, deleteFeedFollow, getFeedFollowsByUUID, getFeedFollowsTable } from "src/lib/db/queries/feed-follows";
 import { getFeedByURL, getFeedByUUID } from "src/lib/db/queries/feeds";
 import { User } from "src/lib/db/schema";
 
@@ -57,5 +57,18 @@ export async function handlerUserFFList(
         }
     } catch (err) {
         throw new Error(`query for current user's feedfollows failed: ${err}`);
+    }
+}
+
+// command "feedfollows"
+export async function handlerFeedFollowsList(
+    cmdName: string,
+    ...args: string[]
+): Promise<void> {
+    try {
+        const [...result] = await getFeedFollowsTable();
+        console.log(result);
+    } catch (err) {
+        throw new Error(`get feed follows data failed: ${err}`);
     }
 }

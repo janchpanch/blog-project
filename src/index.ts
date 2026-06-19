@@ -1,8 +1,8 @@
-import { handlerResetTables, handlerGetUsers, handlerGetFeeds, handlerFeedFollowsTable, handlerAggRSS, handlerSandbox } from "./commands/aggregate";
-import { CommandsRegistry, registerCommand, runCommand } from "./commands/commands";
-import { handlerFollow, handlerUnfollow, handlerUserFFList } from "./commands/feed-follows";
-import { handlerAddFeed } from "./commands/feeds";
-import { handlerLogin, handlerRegister } from "./commands/users";
+import { handlerAggRSS, handlerBrowse } from "./commands/aggregate";
+import { CommandsRegistry, registerCommand, handlerResetTables, runCommand } from "./commands/commands";
+import { handlerFollow, handlerUnfollow, handlerUserFFList, handlerFeedFollowsList } from "./commands/feed-follows";
+import { handlerAddFeed, handlerGetFeeds } from "./commands/feeds";
+import { handlerLogin, handlerRegister, handlerGetUsers } from "./commands/users";
 import { middlewareLoggedIn } from "./middleware";
 
 async function main() {
@@ -15,7 +15,7 @@ async function main() {
     if (!cmd || cmd.length === 0) {
         throw new Error("not enough arguments were provided");
     }
-    
+
     /**
      * auth functions
      */
@@ -29,7 +29,8 @@ async function main() {
     registerCommand(reg, "follow", middlewareLoggedIn(handlerFollow));
     registerCommand(reg, "unfollow", middlewareLoggedIn(handlerUnfollow));
     registerCommand(reg, "following", middlewareLoggedIn(handlerUserFFList));
-    
+    registerCommand(reg, "browse", middlewareLoggedIn(handlerBrowse));
+
     /**  
      * auth-agnostic functions
      */
@@ -37,15 +38,8 @@ async function main() {
     registerCommand(reg, "users", handlerGetUsers);
     registerCommand(reg, "reset", handlerResetTables);
     registerCommand(reg, "feeds", handlerGetFeeds);
-    registerCommand(reg, "feedfollows", handlerFeedFollowsTable);
+    registerCommand(reg, "feedfollows", handlerFeedFollowsList);
     registerCommand(reg, "agg", handlerAggRSS);
-
-    /**
-     * test function(s)
-     */
-    registerCommand(reg, "sandbox", handlerSandbox);
-
-    
 
     await runCommand(reg, cmd, ...args);
 

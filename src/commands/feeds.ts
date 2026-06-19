@@ -1,5 +1,6 @@
 import { createFeedFollow } from "src/lib/db/queries/feed-follows";
-import { createFeed } from "src/lib/db/queries/feeds";
+import { createFeed, getFeeds } from "src/lib/db/queries/feeds";
+import { getUserByUUID } from "src/lib/db/queries/users";
 import { User } from "src/lib/db/schema";
 
 export async function handlerAddFeed(
@@ -23,5 +24,23 @@ export async function handlerAddFeed(
         throw new Error(`failed to create feed "${args[0]}": "${args[1]}"`, {
             cause: err,
         });
+    }
+}
+
+// command "feeds"
+export async function handlerGetFeeds(
+    cmdName: string,
+    ...args: string[]
+): Promise<void> {
+    try {
+        // fetch all feeds
+        const feeds = await getFeeds();
+        for (let i of feeds) {
+            // fetch the username from the stored user_id in each feed entry
+            const user = await getUserByUUID(i.userID)
+            console.log(`name: ${i.name}\nurl: ${i.url}\nusername: ${user.name}\n`);
+        }
+    } catch (err) {
+        console.log(`feeds call to db failed: ${err}`);
     }
 }

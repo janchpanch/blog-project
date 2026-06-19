@@ -1,5 +1,5 @@
-import { setUser } from "src/config";
-import { getUser, createUser } from "src/lib/db/queries/users";
+import { readConfig, setUser } from "src/config";
+import { getUser, createUser, getUsers } from "src/lib/db/queries/users";
 
 /**
  * auth functions 
@@ -36,5 +36,25 @@ export async function handlerRegister(
         );
     } catch {
         throw new Error(`User ${args[0]} is already registered`);
+    }
+}
+
+// command "users"
+export async function handlerGetUsers(
+    cmdName: string,
+    ...args: string[]
+): Promise<void> {
+    let result = await getUsers();
+    if (!result.length) {
+        console.log("no users exist in the database");
+    } else {
+        for (let i = 0; i < result.length; i++) {
+            let n = result[i].name;
+            if (n === readConfig().currentUserName) {
+                console.log(`* ${n} (current)`);
+            } else {
+                console.log(`* ${n}`);
+            }
+        }
     }
 }
